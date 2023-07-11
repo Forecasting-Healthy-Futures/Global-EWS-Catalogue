@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tool Catalog</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/110/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.0.0/d3.min.js"></script>
+  <script src="https://cdn.rawgit.com/mrdoob/three.js/r110/examples/js/loaders/GLTFLoader.js"></script>
+
+  <style>
+    /* Brand colors */
+    :root {
+      --brand-primary: #47c2c7;
+      --brand-secondary: #ff414d;
+      --brand-tertiary: #0f2669;
+      --brand-light: #ebe9e9;
+      --brand-white: #ffffff;
+    }
+  
+    /* Brand font */
+    body {
+      font-family: "Century Gothic", sans-serif;
+    }
+  
+    /* Jumbotron styling */
+    .jumbotron {
+      background-color: var(--brand-primary);
+      color: var(--brand-white);
+      font-size: 20px;
+    }
+  
+    .jumbotron-second {
+      background-color: var(--brand-light);
+      color: var(--brand-tertiary);
+      font-size: 20px;
+    }
+  
+    .card {
+        background: linear-gradient(to bottom, var(--brand-light), var(--brand-primary));
+    }
+  
+    .floating-card {
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+    }
+  
+    .card-title {
+        color: var(--brand-tertiary);
+    }
+  
+    /* Table styling */
+    .table {
+      background-color: var(--brand-light);
+    }
+  
+    .table td {
+      color: var(--brand-secondary);
+    }
+  
+    .tooltip-inner {
+      max-width: 200px;
+    }
+  
+    /* Custom styles */
+    .navbar {
+      justify-content: flex-start;
+    }
+  
+    .navbar-brand {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+  
+    .navbar-brand img {
+      margin: 0;
+    }
+  
+    .navbar-brand .title {
+      font-size: 48px;
+      font-weight: bold;
+      margin: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: typing 3s steps(40) 1s 1 normal both;
+    }
+  
+    .navbar-brand .title:after {
+      content: "|";
+      display: inline-block;
+      opacity: 1;
+      animation: blink 0.7s infinite;
+    }
+  
+    @keyframes typing {
+      from {
+        width: 0;
+      }
+  
+      to {
+        width: 100%;
+      }
+    }
+  
+    @keyframes blink {
+      0%,
+      100% {
+        opacity: 1;
+      }
+  
+      50% {
+        opacity: 0;
+      }
+    }
+  
+    .navbar-brand .subtitle {
+      font-size: 24px;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--brand-secondary);
+      animation: scrollLeft 20s linear infinite;
+      margin-left: 10px;
+    }
+  
+    @keyframes scrollLeft {
+      0% {
+        transform: translateX(100%);
+      }
+  
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+  
+    .table-container {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+  
+    /* Scrollspy styling */
+    #scrollspy-container {
+      background-color: var(--brand-light);
+      border-radius: 10px;
+      padding: 20px;
+    }
+  
+    #scrollspy-container h2 {
+      font-size: 42px;
+      margin-bottom: 10px;
+      color: var(--brand-tertiary);
+    }
+  
+    #scrollspy-container h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: var(--brand-secondary);
+    }
+  
+    #scrollspy-container .nav-link {
+      font-size: 18px;
+      padding: 10px;
+      color: var(--brand-tertiary);
+    }
+  
+    #scrollspy-container .nav-link.active {
+      background-color: var(--brand-primary);
+      color: var(--brand-white);
+    }
+  
+    #scrollspy-container .section-content {
+      display: none;
+    }
+  
+    #scrollspy-container .section-content.show {
+      display: block;
+    }
+  
+    #scrollspy-container .subsection-content {
+      margin-left: 20px;
+    }
+  
+    #scrollspy-container .subsection-content p {
+      margin-bottom: 10px;
+    }
+  
+    .carousel-item {
+        backface-visibility: hidden;
+        transition: transform 0.6s ease;
+    }
+  
+    .carousel-item-next,
+    .carousel-item-prev,
+    .carousel-item.active {
+        transform: translateX(0);
+    }
+  
+    .carousel-item-next,
+    .carousel-item-prev {
+        position: relative;
+        transform: translateX(0) rotateY(0deg);
+    }
+  
+    .carousel-item-next.carousel-item-start,
+    .carousel-item-prev.carousel-item-end {
+        transform: translateX(0) rotateY(0deg);
+    }
+  
+    .carousel-item-next.carousel-item-start-active,
+    .carousel-item-prev.carousel-item-end-active {
+        transform: translateX(0) rotateY(0deg);
+    }
+  
+    .carousel-item-next.carousel-item-end,
+    .carousel-item-prev.carousel-item-start {
+        transform: translateX(0) rotateY(0deg);
+    }
+  
+    .carousel-item-next.carousel-item-end-active,
+    .carousel-item-prev.carousel-item-start-active {
+        transform: translateX(0) rotateY(0deg);
+    }
+  
+    .data-ensemble-container {
+      margin-top: 40px;
+    }
+  
+    .data-ensemble-container h3 {
+      margin-bottom: 10px;
+    }
+  
+    /* Custom CSS for floating and moving cards */
+    .floating-card {
+      animation: floatCard 3s infinite;
+    }
+  
+    @keyframes floatCard {
+      0% {
+        transform: translate(0, 0);
+      }
+  
+      50% {
+        transform: translate(10px, 10px);
+      }
+  
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+  
+    .table-container {
+        background-color: var(--brand-tertiary);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: auto;
+    }
+
+    /* Custom styles for hiding inner grid lines */
+    .table td {
+      border-color: #0f2669;
+    }
+  
+    .table {
+        border-radius: 0.8rem;
+    }
+  
+    .table td a.btn {
+      color: #0f2669;
+      background-color: #0f2669;
+      border-color: #0f2669;
+    }
+  
+    .table thead {
+    display: none;
+    }
+  
+    body {
+      margin: 0;
+      padding: 10;
+      color: #0f2669;
+    }
+  
+    .page-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  
+    /* Custom CSS for icons */
+    .fa-icon-1::before {
+      content: "\f200";
+      /* Replace 'xxx' with the Unicode value of your desired Font Awesome icon for 'Malaria' */
+    }
+  
+    .fa-icon-2::before {
+      content: "\f0ae";
+      /* Replace 'yyy' with the Unicode value of your desired Font Awesome icon for 'Dengue' */
+    }
+  
+    .fa-icon-3::before {
+      content: "\f0f0";
+      /* Replace 'zzz' with the Unicode value of your desired Font Awesome icon for 'Influenza' */
+    }
+  
+    /* Custom styles for hiding the table header row */
+    #table-body th {
+      display: none;
+    }
+
+    .ribbon-container {
+      width: 100%;
+      height: 50px;
+      background-color: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .ribbon-text {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f2669;
+    }
+
+  </style>
+  
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const titleElement = document.querySelector('.navbar-brand .title');
+      titleElement.classList.remove('typing');
+
+      setTimeout(() => {
+        titleElement.classList.add('typing');
+      }, 500);
+    });
+  </script>
+</head>
+
+<body>
+  <div class="page-content">
+    <nav class="navbar navbar-light bg-light">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="https://i.imgur.com/phCaSyR.png" alt="Logo" width="302" height="218" class="d-inline-block align-text-top">
+          <div>
+            <div class="title">Digital Health Tools for Climate Change</div>
+            <div class="subtitle">A global catalog of forecasting, prediction, risk stratification, and early warning system models, tools, and platforms that can be used for health adaptation.</div>
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <div class="jumbotron">
+      <div class="container">
+        <h1 class="display-6">Welcome to the global digital health catalog for health adaptation to climate change!</h1>
+        <p class="lead">This catalog currently publishes the digital health tools and models that are used for predictive modeling, environmental monitoring, risk stratification, and health program planning, implementation, and monitoring for climate-sensitive infectious diseases. We have categorized the functionality of these tools into three major containers for the ease of understanding of our readers.</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-4">
+          <div class="card floating-card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="fas fa-icon-1"></i> Analytics and Decision Support
+              </h5>
+              <p class="card-text">These tools utilize advanced data analytics, modeling, and machine learning techniques to predict disease scenarios, evaluate the effectiveness of interventions, and assist in policymaking. They analyze large datasets to identify patterns, correlations, and trends, enabling policymakers to make informed decisions and allocate resources effectively. These tools aid in forecasting disease outbreaks, estimating the impact of interventions, and prioritizing resource allocation based on projected health needs.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="card floating-card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="fas fa-icon-2"></i> Disaster and Outbreak Management
+              </h5>
+              <p class="card-text">These tools provide operational support during disaster and outbreak preparedness and response efforts. They are designed to facilitate efficient coordination, communication, and resource allocation in emergency situations. Examples of such tools include communication platforms, real-time mapping systems, early warning systems, and emergency response coordination tools. They help streamline outbreak and emergency response efforts, ensure timely communication among stakeholders, and enable effective allocation of resources.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="card floating-card">
+            <div class="card-body">
+              <h5 class="card-title">
+                <i class="fas fa-icon-3"></i> Frontline Health Worker Support
+              </h5>
+              <p class="card-text">These tools are specifically developed to assist frontline health workers in delivering services and implementing public health interventions. Examples of such tools include mobile applications for data collection, patient management systems, decision support systems for diagnosis and treatment, and training platforms for skill development. These tools empower frontline health workers by providing them with accessible and actionable information, enabling them to deliver quality healthcare services and implement interventions effectively.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ribbon-container">
+      <div class="ribbon-text">The following table contains the list of tools. Please click the names of the tools to expand the descriptions.</div>
+    </div>
+
+    <div class="container mt-5">
+      <div class="table-container">
+        <table class="table table-hover">
+          <thead class="sticky-header">
+            <tr>
+              <th>Name</th>
+              <th>Target</th>
+              <th>Type</th>
+              <th>Analytics and decision support</th>
+              <th>Disaster and outbreak management</th>
+              <th>Frontline health worker support</th>
+              <th>Method</th>
+              <th>GitHub</th>
+              <th>Publication</th>
+              <th>Presentation</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Table rows will be dynamically generated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="jumbotron jumbotron-second" style="margin-top: 40px;">
+      <div class="container">
+        <h1 class="display-6">Malaria Early Warning Systems Assessment</h1>
+        <p class="lead">Malaria Early Warning Systems (MEWS) provide timely information on malaria transmission patterns, aiding early detection and proactive management. First developed in 1913, MEWS is one of the earliest known digital health solutions to aid the health programming to address climate-sensitive infectious diseases. These systems integrate data on cases, weather, and other factors to detect outbreaks, target interventions, and optimize resource allocation.</p>
+        <p class="lead">IMACS conducted a comprehensive assessment of Malaria Early Warning Systems (MEWS) in 2022-23. It analyzed MEWS models and tools worldwide, using synthesized evidence from a scoping review and expert insights from 15+ countries. The assessment covered aspects like scale, data inputs, regulations, technical barriers, and best practices in MEWS development and implementation.</p>
+        <img src="https://i.imgur.com/T7VwDxd.gif" alt="EWS Method GIF" class="img-fluid" style="margin-top: 20px;">
+      </div>
+    </div>
+
+    <div class="container mt-5">
+      <div id="scrollspy-container">
+        <h2>Report Summary</h2>
+        <ul class="nav nav-pills nav-justified">
+          <li class="nav-item">
+            <a class="nav-link active" href="#section-attributes">Attributes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#section-challenges-best-practices">Challenges &amp; Best Practices</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#section-recommendations">Recommendations</a>
+          </li>
+        </ul>
+
+        <div id="section-attributes" class="section-content show">
+          <div class="subsection-content">
+            <h3>Scale &amp; outreach</h3>
+            <p>MEWS initiatives are deployed globally across different scales and regions, addressing unique challenges. A regional, multi-country approach is seen in the Amazon and East Africa, while national and sub-national efforts are observed in various countries targeting malaria outbreaks. Communication capabilities vary, with some systems incorporating local community and health authority input. The population coverage ranges from regional to provincial and subdistrict levels, with high-resolution systems implemented in a few countries, such as India, Ethiopia, Swaziland, and Zimbabwe.</p>
+          </div>
+          <div class="subsection-content">
+            <h3>Data &amp; models</h3>
+            <p>Developers used malaria surveillance data available from both public and private healthcare facilities, with limited private facility data in select African countries and India. Modeling incorporates weather data, vegetation indices, entomological information, and geotagged data. Weather information is sourced from local offices, weather stations, and global organizations. Multivariate systems use centralized databases, with predictive models including time series, anomaly detection, and regression-based methods. Implementation employs R packages, Python, HTML/CSS, and some systems use C++.</p>
+          </div>
+        </div>
+
+        <div id="section-challenges-best-practices" class="section-content">
+          <div class="subsection-content">
+            <h3>Challenges</h3>
+            <p>Limited digital data collection (36%), data validation (75%), uniform data (75%), availability of data entry staff (46%), lack of real-time notification (14%), limited case notification (71%), low presence of real-time and digital dashboards (9% and 55% respectively) impeded the developmental progresses. Regulatory challenges include varied government involvement (46%), participation of non-government entities (30%), and the need for innovative approaches (18%). Implementation challenges vary across countries, with most common ones being inadequate technical capacity, data quality issues, funding scarcity, and political conflicts. Lack of understanding, data sharing, capacity, and interdepartmental coordination were also reported.</p>
+          </div>
+          <div class="subsection-content">
+            <h3>Best Practices</h3>
+            <p>According to interviewed experts, high prediction accuracy is crucial for a successful Multivariate Early Warning Systems (MEWS) (90%). Collaborative efforts across sectors (45%) and comprehensive cross-sectoral training (81%) are important. A robust pilot and open-source data were highlighted (72%), while real-time alerts and low licensing costs were less significant (9%). Complex designs were preferred by the majority (63%). Acceptance enablers include innovation buy-in, proof of concept, advanced technology demand, and developer commitment. Noteworthy collaborations include Welcome & Gates Venture, WHO TDR Aedes Warning System, World Bank Pandemic Fund, IMACS expert network, World Bank Digital Earth partnership, and NASA Support.</p>
+          </div>
+        </div>
+
+        <div id="section-recommendations" class="section-content">
+          <div class="subsection-content">
+            <h3>Policy, financing &amp; technical</h3>
+            <p>Recommendations for policymakers, donors, financial institutions, and international health organizations include establishing financial incentives for early warning systems, integrating them into global health security and Universal Health Coverage, comprehensive funding strategies, and forming working groups for global data infrastructure. Technologists, data scientists, and model developers are advised to publish robust proof of concepts, promote shared data platforms, and ensure interpretability and scalability of models for non-technical audiences.</p>
+          </div>
+          <div class="subsection-content">
+            <h3>Local &amp; global collaborations</h3>
+            <p>To enhance the effectiveness of early warning systems, it is vital to foster holistic collaboration involving government agencies, local communities, universities, NGOs, and international organizations. This collaboration should encourage cross-sectoral cooperation, data sharing, and capacity building. Co-development of models with local expertise and knowledge is crucial, involving communities, local modelers, and universities. Cross-cutting coordination among donors, organizations, and governments is essential to address various diseases and focus areas. A needs-driven approach should be adopted, allowing countries to define their specific requirements and providing best practices to address those needs effectively.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ribbon-container">
+      <div class="ribbon-text">The complete report is accessible below. To navigate through the report, please utilize the right arrow located on the side of the page.</div>
+    </div>
+
+    <div id="ebook-carousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner text-center">
+          <div class="carousel-item active">
+              <img src="https://imgur.com/pjfaKzf.png" class="d-block mx-auto w-50" alt="Page 1">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/oEkUo5G.png" class="d-block mx-auto w-50" alt="Page 2">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/fmqlpZt.png" class="d-block mx-auto w-50" alt="Page 3">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/LaxmfiP.png" class="d-block mx-auto w-50" alt="Page 4">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/YtMxM0E.png" class="d-block mx-auto w-50" alt="Page 5">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/TjRIbhx.png" class="d-block mx-auto w-50" alt="Page 6">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/MbPSYKP.png" class="d-block mx-auto w-50" alt="Page 7">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/8rEMZpA.png" class="d-block mx-auto w-50" alt="Page 8">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/38WGODy.png" class="d-block mx-auto w-50" alt="Page 9">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/gDnrXAX.png" class="d-block mx-auto w-50" alt="Page 10">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/iQsmxCc.png" class="d-block mx-auto w-50" alt="Page 11">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/jbs1s3Y.png" class="d-block mx-auto w-50" alt="Page 12">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/6iZHxWO.png" class="d-block mx-auto w-50" alt="Page 13">
+          </div>
+          <div class="carousel-item">
+              <img src="https://imgur.com/ECfbYW2.png" class="d-block mx-auto w-50" alt="Page 14">
+          </div>
+          <div class="carousel-item">
+            <img src="https://imgur.com/rjbUTkN.png" class="d-block mx-auto w-50" alt="Page 14">
+          </div>
+          <div class="carousel-item">
+            <img src="https://imgur.com/0Y3Leo4.png" class="d-block mx-auto w-50" alt="Page 14">
+          </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#ebook-carousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#ebook-carousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon text-primary" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="jumbotron jumbotron-second" style="margin-top: 40px;">
+      <div class="container">
+        <h1 class="display-6">Thank you for visiting the catalog of digital health tools for climate change!</h1>
+        <p class="lead">We are still accepting submissions for our MEWS Assessment. If you have developed a MEWS and have not already contributed to the survey, please visit the survey page.</p>
+        <a href="https://tally.so/r/wArakz" class="btn btn-primary" style="margin-bottom: 20px;">Visit Survey Page</a>
+      </div>
+    </div>    
+
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0"></script>
+    <script>
+      // Function to read and parse CSV file
+      function readCSV() {
+        return fetch('https://raw.githubusercontent.com/drkaushiksarkar/EWS-Catelogue/main/ewscat.csv')
+          .then(response => response.text())
+          .then(text => Papa.parse(text, { header: true, skipEmptyLines: true }))
+          .then(result => result.data)
+          .catch(error => console.error('Error reading file:', error));
+      }
+    
+      // Function to dynamically generate table rows
+      function generateTableRows(data) {
+        const tableBody = document.getElementById('table-body');
+        data.forEach((item) => {
+          const row = document.createElement('tr');
+    
+          const nameCell = document.createElement('td');
+          nameCell.textContent = item.Name;
+          nameCell.addEventListener('click', () => {
+            showModal(item);
+          });
+          row.appendChild(nameCell);
+    
+          const targetCell = document.createElement('td');
+          targetCell.textContent = item.Target;
+          row.appendChild(targetCell);
+    
+          const typeCell = document.createElement('td');
+          typeCell.textContent = item.Type;
+          row.appendChild(typeCell);
+    
+          const analyticsCell = document.createElement('td');
+          if (item['Analytics and decision support'] === 'yes') {
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-icon-1');
+            analyticsCell.appendChild(icon);
+          }
+          row.appendChild(analyticsCell);
+    
+          const disasterCell = document.createElement('td');
+          if (item['Disaster and outbreak management'] === 'yes') {
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-icon-2');
+            disasterCell.appendChild(icon);
+          }
+          row.appendChild(disasterCell);
+    
+          const frontlineCell = document.createElement('td');
+          if (item['Frontline health worker support'] === 'yes') {
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-icon-3');
+            frontlineCell.appendChild(icon);
+          }
+          row.appendChild(frontlineCell);
+    
+          const methodCell = document.createElement('td');
+          methodCell.textContent = item.Method;
+          row.appendChild(methodCell);
+    
+          const linkCell = createButtonCell(item['Git/Other Link'], 'GitHub');
+          row.appendChild(linkCell);
+    
+          const publicationCell = createButtonCell(item.Publication, 'Publication');
+          row.appendChild(publicationCell);
+    
+          const presentationCell = createButtonCell(item.Presentation, 'Presentation');
+          row.appendChild(presentationCell);
+    
+          const emailCell = createButtonCell(item.Email, 'Email');
+          row.appendChild(emailCell);
+    
+          tableBody.appendChild(row);
+        });
+    
+        initializeTooltips();
+        initializeScrollspy();
+      }
+    
+      // Function to create a cell with a clickable button
+      // Function to create a cell with a clickable button
+      function createButtonCell(value, buttonText) {
+        const cell = document.createElement('td');
+        const button = document.createElement('button');
+        button.classList.add('btn', 'btn-primary');
+        button.textContent = buttonText;
+
+        if (buttonText === 'Email') {
+          button.addEventListener('click', () => {
+            const subject = encodeURIComponent('Regarding EWS Catalogue');
+            const body = encodeURIComponent('Hello, I have a question about the EWS Catalogue:');
+            window.location.href = `mailto:${value}?subject=${subject}&body=${body}`;
+          });
+        } else {
+          button.addEventListener('click', () => {
+            window.open(value);
+          });
+        }
+
+        cell.appendChild(button);
+        return cell;
+      }
+
+    
+      // Function to show the modal with the item details
+      function showModal(item) {
+        const modalTitle = document.getElementById('modal-title');
+        modalTitle.textContent = item.Name;
+    
+        const modalBody = document.getElementById('modal-body');
+        modalBody.innerHTML = `
+          <p>Description: ${item.Description}</p>
+          <p>Base Language: ${item['Base language']}</p>
+          <p>Data Input: ${item['Data input']}</p>
+          <p>Model Output: ${item['Model output']}</p>
+          <p>AI Capability: ${item['AI capability']}</p>
+          <p>Field Validation: ${item['Field Validation']}</p>
+          <p>Country where Applied: ${item['Country where applied']}</p>
+          <p>Regional Scale Potential: ${item['Regional scale potential']}</p>
+        `;
+    
+        const modal = new bootstrap.Modal(document.getElementById('info-modal'));
+        modal.show();
+      }
+    
+      // Function to initialize Bootstrap tooltips
+      function initializeTooltips() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      }
+    
+      // Function to initialize Scrollspy
+      function initializeScrollspy() {
+        const scrollspyContainer = document.getElementById('scrollspy-container');
+        const scrollspyNavLinks = Array.from(scrollspyContainer.querySelectorAll('.nav-link'));
+        const sectionContents = Array.from(scrollspyContainer.querySelectorAll('.section-content'));
+    
+        const handleNavClick = (event) => {
+          event.preventDefault();
+          const targetId = event.target.getAttribute('href');
+          const target = document.querySelector(targetId);
+    
+          if (target) {
+            // Remove active class from all nav links and section contents
+            scrollspyNavLinks.forEach((link) => {
+              link.classList.remove('active');
+            });
+            sectionContents.forEach((section) => {
+              section.classList.remove('show');
+            });
+    
+            // Add active class to the clicked nav link and show the corresponding section content
+            event.target.classList.add('active');
+            target.classList.add('show');
+          }
+        };
+    
+        scrollspyNavLinks.forEach((link) => {
+          link.addEventListener('click', handleNavClick);
+        });
+      }
+    
+      // On page load, fetch and populate the table with CSV data
+      window.addEventListener('DOMContentLoaded', () => {
+        readCSV()
+          .then((data) => {
+            generateTableRows(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      });
+    </script>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="info-modal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal-title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <footer>
+      <div class="container">
+        <p>&copy; 2023 Digital Health Tools for Climate Change. All rights reserved.</p>
+        <p>Disclaimer: We are continuously working on updating the catalog. If you have any feedback or if you wish to include any tools in the catalog or contribute to the survey, please contact <a href="mailto:kaushik.sarkar@forecastinghealthyfutures.org">kaushik.sarkar@forecastinghealthyfutures.org</a>.</p>
+      </div>
+    </footer>
+    
+  </div>
+   
+</body>
+
+</html>
